@@ -11,6 +11,9 @@ Axios.defaults.baseURL = "/server/index.php?s=/"
 Axios.defaults.baseURL = "https://www.showdoc.com.cn/server/index.php?s=/"
 ```
 
+本项目只适用于API编辑(即使用runapi创建的接口文档), 未过滤md文档, 所以编辑md文档会报错, 目前也用不到, 所以懒得处理了.
+代码很傻比, 作者后端, 前端大牛别喷.
+
 
 ## Project setup
 ```
