@@ -5,7 +5,7 @@
         <div style="height: calc(100vh - 52px)" v-loading="pageLoading">
             <div class="page-list"><page-list :item-id="$route.params.itemId" :on-select="selectItem"></page-list></div>
             <!-- 页面详情 -->
-            <div class="page-info" v-if="apiData.info">
+            <div class="page-info" v-if="apiData.info && !isPage">
                 <div class="head">
                     <el-input placeholder="文档连接" :value="thisPageId != 0 ? 'https://www.showdoc.com.cn/' + $route.params.itemId + '?page_id=' + thisPageId : ''"></el-input>
                     <el-input placeholder="接口名称" v-model="pageData.page_title" style="width: calc(50% - 5px); margin-right: 10px"></el-input>
@@ -107,6 +107,14 @@
                     </el-tabs>
                 </div>
             </div>
+            <div class="page-info" v-if="isPage">
+                <el-input placeholder="文档连接" :value="thisPageId != 0 ? 'https://www.showdoc.com.cn/' + $route.params.itemId + '?page_id=' + thisPageId : ''"></el-input>
+                <el-input placeholder="文档名称" v-model="pageData.page_title" style="margin-top: 10px; width: calc(100% - 82px); margin-right: 10px"></el-input>
+                <el-button type="primary" @click="save">保存</el-button>
+                <div>
+                    <mavon-editor v-model="pageData.page_content"/>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -128,6 +136,7 @@
                 resultTab: 'body',
                 jsonParamTab: 'json-body',
                 responseStatus: 0,
+                isPage: false,
                 cmOptions: {
                     tabSize: 2,
                     mode: 'application/json',
@@ -262,7 +271,12 @@
                     this.pageData.page_title = res.data.page_title
                     this.pageData.page_comments = res.data.page_comments
                     this.pageData.page_content = res.data.page_content
-                    this.pageData.pageContent = JSON.parse(this.htmlDecode(res.data.page_content))
+                    try {
+                        this.pageData.pageContent = JSON.parse(this.htmlDecode(res.data.page_content))
+                        this.isPage = false
+                    }catch (e) {
+                        this.isPage = true
+                    }
                     console.log(this.pageData.pageContent)
                     this.apiData = this.pageData.pageContent
                 }).finally(() => {
@@ -276,12 +290,14 @@
                     page_id: this.thisPageId,
                     item_id: this.$route.params.itemId,
                     page_title: this.pageData.page_title,
-                    page_content: JSON.stringify(this.apiData),
+                    page_content: this.isPage ? this.pageData.page_content : JSON.stringify(this.apiData),
                     is_urlencode: 1,
                     cat_id: this.thisCatId
                 }).then(res => {
                     console.log(res)
-
+                    if (this.isPage){
+                        return;
+                    }
                     let xhr = new XMLHttpRequest();
                     let data = {
                         "msg_type": "interactive",

@@ -1,16 +1,23 @@
 <template>
     <div>
-        <div>
-            username<input type="text" v-model="param.username">
-        </div>
-        <div>
-            password<input type="password" v-model="param.password">
-        </div>
-        <div>
-            valicode <input type="text" v-model="param.v_code">
-        </div>
-        <img :src="valiCodeUrl" @click="refushValiCode">
-        <button @click="login">login</button>
+        <el-card class="box-card">
+            <el-form ref="form" :model="param" label-width="80px">
+                <el-form-item label="用户名">
+                    <el-input v-model="param.username"></el-input>
+                </el-form-item>
+                <el-form-item label="密码">
+                    <el-input v-model="param.password" type="password"></el-input>
+                </el-form-item>
+                <el-form-item label="验证码">
+                    <el-input v-model="param.v_code" style="width: calc(100% - 160px);"></el-input>
+                    <img :src="valiCodeUrl" @click="refushValiCode" style="vertical-align: middle; width: 150px; height: 41px; float: right">
+                </el-form-item>
+                <div style="text-align: center">
+                    <el-button type="primary" @click="login" style="width: 200px;">登录</el-button>
+                </div>
+
+            </el-form>
+        </el-card>
     </div>
 </template>
 
@@ -49,5 +56,9 @@
 </script>
 
 <style scoped>
-
+    .box-card{
+        width: 450px;
+        height: 280px;
+        margin: calc(calc(100vh - 290px) / 2) auto;
+    }
 </style>

@@ -9,8 +9,12 @@ import 'element-ui/lib/theme-chalk/index.css';
 import VueCodemirror from 'vue-codemirror'
 import 'codemirror/lib/codemirror.css'
 
+import MavonEditor from 'mavon-editor'
+import 'mavon-editor/dist/css/index.css'
+
 Vue.use(ElementUI);
 Vue.use(VueCodemirror);
+Vue.use(MavonEditor)
 
 Vue.config.productionTip = false
 
@@ -69,8 +73,10 @@ Axios.interceptors.response.use(
               router.replace({
                   path: '/login'
               })
+              return Promise.reject(response.data)
           }else if (response.data.error_code !== 0){
-              console.log(response.data)
+              Vue.prototype.$message.error(response.data.error_message);
+              return Promise.reject(response.data)
           }
         return Promise.resolve(response.data)
       } else {

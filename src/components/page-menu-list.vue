@@ -20,14 +20,14 @@
         <el-dialog
                 title="新增"
                 :visible.sync="dialogVisible"
-                width="30%">
+                width="400px">
 
             <div style="margin-bottom: 20px">
-                <el-radio v-model="createType" label="folder">目录</el-radio>
-                <el-radio v-model="createType" label="api">接口</el-radio>
+                <el-radio v-model="createType" label="folder">新建目录</el-radio>
+                <el-radio v-model="createType" label="api">新建接口</el-radio>
+                <el-radio v-model="createType" label="doc">新建文档</el-radio>
             </div>
             <el-input v-model="createName" placeholder="请输入名称"></el-input>
-
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible = false">取 消</el-button>
                 <el-button type="primary" @click="createItem">确 定</el-button>
@@ -60,6 +60,10 @@
                 this.dialogVisible = true
             },
             createItem(){
+                if (!this.createName){
+                    this.$message.error('名称不能为空');
+                    return;
+                }
                 if (this.createType === 'folder'){
                     this.ser.post("api/catalog/save", {
                         item_id: this.itemId,
@@ -67,7 +71,6 @@
                         parent_cat_id: this.parentCatId,
                         cat_name: this.createName
                     }).then(res => {
-                        alert(res.data)
                         this.menu.catalogs.push({
                             item_id: this.itemId,
                             cat_id: res.data,
@@ -77,7 +80,7 @@
                     }).finally(() => {
                         this.dialogVisible = false
                     })
-                }else{
+                }else if (this.createType === 'api'){
                     let data = {
                         extend: {},
                         info: {
@@ -124,6 +127,25 @@
                         item_id: this.itemId,
                         page_title: this.createName,
                         page_content: JSON.stringify(data),
+                        is_urlencode: 1,
+                        cat_id: this.parentCatId
+                    }).then(res => {
+                        this.menu.pages.push({
+                            item_id: this.itemId,
+                            page_id: res.data.page_id,
+                            cat_id: this.parentCatId,
+                            page_title: this.createName
+                        })
+                        this.onSelect(res.data.page_id)
+                    }).finally(() => {
+                        this.dialogVisible = false
+                    })
+                }else{
+                    this.ser.post("api/page/save", {
+                        page_id: 0,
+                        item_id: this.itemId,
+                        page_title: this.createName,
+                        page_content: '# hello world!',
                         is_urlencode: 1,
                         cat_id: this.parentCatId
                     }).then(res => {
