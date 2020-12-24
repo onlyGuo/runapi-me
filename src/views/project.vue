@@ -26,12 +26,12 @@
                     <el-tabs v-model="this.reqParamTab" @tab-click="">
                         <el-tab-pane label="Header" name="header">
                             <div class="headers">
-                                <div class="header-item" v-for="headerItem in requestHeaders">
+                                <div class="header-item" v-for="headerItem in apiData.request.headers">
                                     <el-input placeholder="请求地址" class="head-name" v-model="headerItem.name"></el-input>
                                     <el-input placeholder="请求地址" class="head-value" v-model="headerItem.value"></el-input>
-                                    <el-button icon="el-icon-close" circle @click="requestHeaders.remove(headerItem)"></el-button>
+                                    <el-button icon="el-icon-close" circle @click="apiData.request.headers.remove(headerItem)"></el-button>
                                 </div>
-                                <el-button type="text" @click="requestHeaders.push({name: '', value: ''})">新增Header</el-button>
+                                <el-button type="text" @click="apiData.request.headers.push({name: '', value: ''})">新增Header</el-button>
                             </div>
                         </el-tab-pane>
                     </el-tabs>
@@ -78,6 +78,7 @@
                                 <el-input placeholder="字段说明" class="item result-dscp" v-model="requestField.remark"></el-input>
                                 <el-button icon="el-icon-close" circle @click="apiData.request.params.urlencoded.remove(requestField)"></el-button>
                             </div>
+                            <el-button type="text" @click="apiData.request.params.urlencoded.push({name: '', value: ''})">新增字段</el-button>
                         </el-tab-pane>
                     </el-tabs>
                 </div>
@@ -126,14 +127,6 @@
                 reqParamTab: 'header',
                 resultTab: 'body',
                 jsonParamTab: 'json-body',
-                requestHeaders: [
-                    {
-                        name: 'Content-Type',value: 'application/json'
-                    },{
-                        name: 'Authorization',value: ''
-                    }
-                ],
-                requestUrl: '',
                 responseStatus: 0,
                 cmOptions: {
                     tabSize: 2,
@@ -175,24 +168,24 @@
                     if (xhr.readyState === 4){
                         this.pageLoading = false
                         this.responseStatus = xhr.status
-                        this.resultJson = JSON.stringify(JSON.parse(xhr.responseText), null, 2);
+                        this.apiData.response.responseExample = JSON.stringify(JSON.parse(xhr.responseText), null, 2);
                     }
                 }
 
                 // 请求与请求体
                 if (this.apiData.info.method === 'get'){
-                    let req = this.requestUrl;
+                    let req = this.apiData.info.url;
                     if (!req.startsWith("http")){
                         req = "http://" + req
                     }
-                    if (this.requestUrl.indexOf('?') !== -1){
+                    if (this.apiData.info.url.indexOf('?') !== -1){
                         req += '&' + data;
                     }else{
                         req += '?' + data;
                     }
                     xhr.open(this.apiData.info.method, req, false);
                 }else{
-                    let req = this.requestUrl;
+                    let req = this.apiData.info.url;
                     if (!req.startsWith("http")){
                         req = "http://" + req
                     }
@@ -200,13 +193,13 @@
                 }
 
                 // 请求头
-                for (let i in this.requestHeaders){
-                    let head = this.requestHeaders[i];
-                    if (head && head.value){
+                for (let i in this.apiData.request.headers){
+                    let head = this.apiData.request.headers[i];
+                    if (head && head.value && head.name){
                         xhr.setRequestHeader(head.name, head.value);
                     }
                 }
-                if (this.requestMethod === 'GET'){
+                if (this.apiData.info.method === 'get'){
                     xhr.send()
                 }else{
                     xhr.send(data)
@@ -357,7 +350,7 @@
                     }
 
                     // 请求与请求体
-                    xhr.open(this.apiData.info.method, "https://open.feishu.cn/open-apis/bot/v2/hook/4be21371-ffb2-4566-8b24-392565f60755", false);
+                    xhr.open("POST", "https://open.feishu.cn/open-apis/bot/v2/hook/4be21371-ffb2-4566-8b24-392565f60755", false);
                     // 请求头
                     xhr.setRequestHeader("Content-Type", 'application/json;charset=utf-8');
                     xhr.send(JSON.stringify(data))

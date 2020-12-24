@@ -42,7 +42,7 @@
                 })
             },
             refushValiCode(){
-                this.valiCodeUrl = '/server/index.php?s=/api/common/verify&rand=' + this.uuid()
+                this.valiCodeUrl = this.ser.ctx + 'api/common/verify&rand=' + this.uuid()
             }
         }
     }
